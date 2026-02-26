@@ -1,0 +1,69 @@
+name: Apply Backend layers to Staging Env
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - staging
+
+jobs:
+  apply-backend:
+    name: Backend - Apply to ${{ github.event.inputs.environment }} Env
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    env:
+      TF_VAR_region: ${{ secrets.AWS_REGION }}
+      TF_VAR_environment: ${{ github.event.inputs.environment }}
+      TF_VAR_app_id: mini-gallery-app
+      TF_VAR_route53_zone_name: epic-trip-planner.com
+      TF_VAR_api_file_upload_domain_name: ${{ github.event.inputs.environment }}-file-upload-api.epic-trip-planner.com
+      TF_VAR_backend_certificate_arn: ${{secrets.BACKEND_CERTIFICATE_ARN}}
+      TF_VAR_uploads_bucket_name: mini-gallery-app-uploads
+      TF_VAR_secret_store_name: ${{secrets.SECRET_STORE_NAME}}
+      TF_VAR_notification_email: ${{secrets.ALERT_EMAIL}}
+      TF_VAR_alt_cloudfront_domain_name: ${{ github.event.inputs.environment }}.epic-trip-planner.com
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.12.2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::387836084035:role/githubMiniGalleryAppRole
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Terraform Init
+        working-directory: terraform/live/${{ github.event.inputs.environment }}
+        run: |
+          terraform init -input=false -upgrade 
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      
+      - name: Module File Uploader - Build Lambda packages (${{ github.event.inputs.environment }})
+        run: |
+          sudo apt-get update && sudo apt-get install -y build-essential python3 libvips-dev
+          cd terraform/live/${{ github.event.inputs.environment }}/.terraform/modules/file_uploader/terraform/modules/file_uploader/src/lambdas/get_presigned_url
+          npm ci --silent --no-audit
+          cd ../process_uploaded_file
+          npm ci --silent --no-audit
+
+      - name: Terraform Apply
+        working-directory: terraform/live/${{ github.event.inputs.environment }}
+        run: |
+          terraform apply -auto-approve
