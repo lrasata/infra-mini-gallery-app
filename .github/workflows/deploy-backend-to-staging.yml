@@ -58,7 +58,7 @@ jobs:
       - name: Module File Uploader - Build Lambda packages (${{ github.event.inputs.environment }})
         run: |
           sudo apt-get update && sudo apt-get install -y build-essential python3 libvips-dev
-          cd terraform/live/${{ github.event.inputs.environment }}/.terraform/modules/file_uploader/terraform/modules/file_uploader/src/lambdas/get_presigned_url
+          cd terraform/live/${{ github.event.inputs.environment }}/.terraform/modules/staging_mini_gallery_app.file_uploader/terraform/modules/file_uploader/src/lambdas/get_presigned_url
           npm ci --silent --no-audit
           cd ../process_uploaded_file
           npm ci --silent --no-audit
