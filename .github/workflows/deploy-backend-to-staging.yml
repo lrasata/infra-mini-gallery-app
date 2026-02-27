@@ -64,8 +64,6 @@ jobs:
           npm ci --silent --no-audit
           cd ../get_files
           npm ci --silent --no-audit
-          cd ../token_authorizer
-          npm ci --silent --no-audit
 
       - name: Terraform Apply
         working-directory: terraform/live/${{ github.event.inputs.environment }}
