@@ -81,3 +81,9 @@ variable "bucket_av_sns_findings_topic_name" {
   default     = ""
 }
 # END
+
+variable "quarantine_bucket_name" {
+  description = "S3 quarantine bucket name for flagged content"
+  type        = string
+  default     = "quarantine-bucket"
+}
