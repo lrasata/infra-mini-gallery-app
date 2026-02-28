@@ -78,6 +78,11 @@ jobs:
           npm ci --no-audit --silent
           npm run build --silent
 
+      - name: Terraform Plan
+        working-directory: terraform/live/${{ github.event.inputs.environment }}
+        run: |
+          terraform plan
+
       - name: Terraform Apply
         working-directory: terraform/live/${{ github.event.inputs.environment }}
         run: |
