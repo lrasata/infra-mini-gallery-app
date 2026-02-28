@@ -29,7 +29,6 @@ jobs:
       TF_VAR_uploads_bucket_name: mini-gallery-app-uploads
       TF_VAR_secret_store_name: ${{secrets.SECRET_STORE_NAME}}
       TF_VAR_notification_email: ${{secrets.ALERT_EMAIL}}
-      TF_VAR_alt_cloudfront_domain_name: ${{ github.event.inputs.environment }}.epic-trip-planner.com
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
