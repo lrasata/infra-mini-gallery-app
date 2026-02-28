@@ -15,15 +15,15 @@ variable "app_id" {
   type        = string
 }
 
+variable "secret_store_name" {
+  description = "Name of the secret store where API_GW_SECRET_TOKEN value can be fetched"
+  type        = string
+}
+
 variable "uploads_bucket_name" {
   description = "The name of the S3 bucket for file uploads"
   type        = string
   default     = "uploads-bucket"
-}
-
-variable "backend_certificate_arn" {
-  description = "The ARN of the ACM certificate"
-  type        = string
 }
 
 variable "api_file_upload_domain_name" {
@@ -32,14 +32,8 @@ variable "api_file_upload_domain_name" {
   default     = "api-file-upload.epic-trip-planner.com"
 }
 
-variable "use_bucket_av" {
-  description = "Use BucketAV to prevent malware to be uploaded in S3 bucket"
-  type        = bool
-  default     = false
-}
-
-variable "secret_store_name" {
-  description = "Name of the secret store where API_GW_AUTH_SECRET value can be fetched"
+variable "backend_certificate_arn" {
+  description = "The ARN of the ACM certificate"
   type        = string
 }
 

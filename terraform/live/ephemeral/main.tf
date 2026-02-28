@@ -10,5 +10,4 @@ module "ephemeral_mini_gallery_app" {
   uploads_bucket_name         = var.uploads_bucket_name
   route53_zone_name           = var.route53_zone_name
   notification_email          = var.notification_email
-  alt_cloudfront_domain_name  = ""
 }

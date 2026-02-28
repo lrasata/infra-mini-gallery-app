@@ -45,11 +45,6 @@ The architecture demonstrates a complete **upload and retrieval workflow**:
 - Content moderation with Rekognition
 - Infrastructure deployment via Terraform
 
-**Optional / extensible:**
-
-- Real user authentication (Cognito)
-- Pagination / infinite scroll in gallery UI
-
 ## Components Deployed
 
 ### File Uploader Backend
@@ -94,28 +89,46 @@ Imports the [content moderator module](https://github.com/lrasata/infra-s3-image
 
 <img src="docs/fetch-files-workflow.png" alt="fetch-files-workflow" width="1383">
 
+## Architectural Choices
+
+- **Serverless Stack**: AWS Lambda + API Gateway + S3 + DynamoDB provides a fully managed, scalable backend without the
+  overhead of provisioning servers.
+- **Presigned URLs**: Chosen for secure direct-to-S3 uploads/downloads, minimizing backend load and avoiding exposing
+  AWS credentials.
+- **Proxy Lambda**: Demonstrates internal request forwarding and secret management; in production this would be replaced
+  by Cognito Authorizer for authentication.
+- **Content Moderation**: AWS Rekognition allows automated detection of inappropriate content without maintaining custom
+  ML models.
+
 ## Security Considerations
 
-- Frontend never stores AWS credentials or secrets
-- Presigned URLs grant **scoped, temporary access**
-- Proxy Lambda forwards requests from Frontend to call protected endpoints by injecting API Token to the request; in production, use **Cognito Authorizer with JWTs**
+- Frontend never stores AWS credentials or secrets.
+- **Presigned URLs** are used for uploads and downloads, granting temporary, time-limited access to specific objects without exposing AWS credentials.
+- **API Protection**: Proxy Lambda hides secrets. Proxy Lambda forwards requests from Frontend to call protected endpoints by injecting API Token to the request; in production, use **Cognito Authorizer with JWTs**
+- **Encryption**: S3 buckets and SNS topics are encrypted using KMS keys.
 
-## Roadmap / Future Enhancements
+## Scalability
+
+- All components are serverless and automatically scale with demand; Lambda concurrency and S3/DynamoDB
+  throughput handle variable loads.
+
+## Future enhancements
 
 - Integrate **Cognito authentication**
 - Add **pagination & caching**
 - Add automated **unit & integration tests**
 
-## Prerequisites
+## How to deploy this infrastructure 
+### Prerequisites
 
 - AWS account with required permissions
 - Terraform v1.3+
 - AWS CLI configured locally
 - GitHub account (for CI/CD deployment)
 
-## Deployment
+### Deployment
 
-### 1. Local Deployment (Classic Configuration)
+#### 1. Local Deployment (Classic Configuration)
 
 You can run and test the stack locally by manually deploying the Terraform infrastructure:
 
@@ -128,7 +141,7 @@ terraform apply -var-file="staging.tfvars"
 
 Update env_config.dart in the Flutter project with the generated endpoints
 
-### 2. CI/CD Deployment (Recommended)
+#### 2. CI/CD Deployment (Recommended)
 
 - Workflow Apply Backend layers to Staging Env triggers Terraform deployment on staging
 - Builds Lambda packages
@@ -147,23 +160,3 @@ Update env_config.dart in the Flutter project with the generated endpoints
 | `TF_VAR_uploads_bucket_name`         | Hardcoded                  | S3 bucket name for uploads          |
 | `TF_VAR_secret_store_name`           | GitHub secret              | Secrets Manager store for API token |
 | `TF_VAR_notification_email`          | GitHub secret              | SNS alert email address             |
-
-### Architectural Choices
-
-- **Serverless Stack**: AWS Lambda + API Gateway + S3 + DynamoDB provides a fully managed, scalable backend without the
-  overhead of provisioning servers.
-- **Presigned URLs**: Chosen for secure direct-to-S3 uploads/downloads, minimizing backend load and avoiding exposing
-  AWS credentials.
-- **Content Moderation**: AWS Rekognition allows automated detection of inappropriate content without maintaining custom
-  ML models.
-- **Proxy Lambda**: Demonstrates internal request forwarding and secret management; in production this would be replaced
-  by Cognito Authorizer for authentication.
-
-### Security & Scalability
-
-- **Scoped Access**: Frontend never holds AWS credentials; presigned URLs limit actions and expiration time.
-- **API Protection**: Proxy Lambda hides secrets; in production, Cognito Authorizer with JWT tokens would secure API
-  Gateway endpoints.
-- **Encryption**: S3 buckets and SNS topics are encrypted using KMS keys; CloudWatch monitoring tracks unusual activity.
-- **Scalability**: All components are serverless and automatically scale with demand; Lambda concurrency and S3/DynamoDB
-  throughput handle variable loads.

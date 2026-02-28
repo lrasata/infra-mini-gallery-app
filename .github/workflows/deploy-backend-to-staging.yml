@@ -1,4 +1,4 @@
-name: Apply Backend layers to Staging Env
+name: Deploy Backend to Env
 
 on:
   workflow_dispatch:
@@ -43,10 +43,11 @@ jobs:
           role-to-assume: arn:aws:iam::387836084035:role/githubMiniGalleryAppRole
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Terraform Init
+      - name: Terraform Init and Validate
         working-directory: terraform/live/${{ github.event.inputs.environment }}
         run: |
-          terraform init -input=false -upgrade 
+          terraform init -input=false -upgrade
+          terraform validate
       
       - name: Setup Node.js
         uses: actions/setup-node@v4

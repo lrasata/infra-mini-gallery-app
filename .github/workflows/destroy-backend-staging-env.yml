@@ -1,4 +1,4 @@
-name: Destroy Backend Staging Environment
+name: Destroy Backend Env
 
 on:
   workflow_dispatch:
