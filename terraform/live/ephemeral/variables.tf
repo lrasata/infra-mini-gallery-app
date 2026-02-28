@@ -7,7 +7,7 @@ variable "region" {
 variable "environment" {
   description = "The environment for the deployment (e.g., dev, staging, prod)"
   type        = string
-  default     = "staging"
+  default     = "ephemeral"
 }
 
 variable "app_id" {
@@ -51,9 +51,4 @@ variable "route53_zone_name" {
 variable "notification_email" {
   description = "Email address for notifications"
   type        = string
-}
-
-# TODO remove this from infra
-variable "alt_cloudfront_domain_name" {
-  type = string
 }

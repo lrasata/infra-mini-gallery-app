@@ -11,5 +11,4 @@ module "staging_mini_gallery_app" {
   use_bucket_av               = var.use_bucket_av
   route53_zone_name           = var.route53_zone_name
   notification_email          = var.notification_email
-  alt_cloudfront_domain_name  = var.alt_cloudfront_domain_name
 }

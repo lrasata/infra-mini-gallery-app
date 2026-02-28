@@ -52,8 +52,3 @@ variable "notification_email" {
   description = "Email address for notifications"
   type        = string
 }
-
-# TODO remove this from infra
-variable "alt_cloudfront_domain_name" {
-  type = string
-}
